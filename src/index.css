@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+body {
+  background-image: repeating-linear-gradient(to right, #0b1a27, #e84a6a, #367c8f);
+}
+
+.slick-slider>.slick-prev {
+  position: absolute;
+  left: 0;
+  margin-left: 10px;
+  z-index: 2;
+}
+
+.slick-slider>.slick-next {
+  position: absolute;
+  right: 0;
+  margin-right: 10px;
+  z-index: 2;
+}
