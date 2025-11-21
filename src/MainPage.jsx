@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Slider from "react-slick";
+import { SlClose } from 'react-icons/sl';
+import { FaStar } from 'react-icons/fa';
 
 const apiKey = import.meta.env.VITE_API_KEY;
 const genreUrl = "https://api.themoviedb.org/3/genre/movie/list"
@@ -9,6 +11,7 @@ const nowPlayingUrl = "https://api.themoviedb.org/3/movie/now_playing?language=e
 const topRatedUrl = "https://api.themoviedb.org/3/movie/top_rated"
 const popularUrl = "https://api.themoviedb.org/3/movie/popular"
 const tvShowsUrl = "https://api.themoviedb.org/3/tv/popular"
+
 
 const imageBaseUrl = 'https://image.tmdb.org/t/p/';
 
@@ -58,6 +61,7 @@ export default function MainPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMovieId, setSelectedMovieId] = useState(null);
   const [movieDetails, setMovieDetails] = useState(null);
+  const [credits, setCredits] = useState(null);
 
   useEffect(() => {
     async function loadData() {
@@ -118,9 +122,16 @@ export default function MainPage() {
 
   const genreMap = Object.fromEntries(genres.map(genre => [genre.id, genre.name]))
 
-  const handleClick = (movieId) => {
+  const openModal = (movieId) => {
     setSelectedMovieId(movieId)
     setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setSelectedMovieId(null)
+    setIsModalOpen(false)
+    setMovieDetails(null)
+    setCredits(null)
   }
 
   useEffect(() => {
@@ -136,10 +147,19 @@ export default function MainPage() {
         }
       }
       try {
-        const response = await fetch(`https://api.themoviedb.org/3/movie/${selectedMovieId}?language=en-US`, options)
-        const data = await response.json()
-        console.log(data)
-        setMovieDetails(data);
+        const movieDetailsResponse = await fetch(`https://api.themoviedb.org/3/movie/${selectedMovieId}?language=en-US`, options)
+
+        const creditsResponse = await fetch(`https://api.themoviedb.org/3/movie/${selectedMovieId}/credits?language=en-US`, options)
+
+
+        const movieDetailsData = await movieDetailsResponse.json()
+        const creditsData = await creditsResponse.json()
+
+        console.log(movieDetailsData)
+        setMovieDetails(movieDetailsData);
+
+        console.log(creditsData)
+        setCredits(creditsData.cast)
       }
       catch (e) {
         console.log(e.message)
@@ -172,8 +192,8 @@ export default function MainPage() {
         <Slider {...settings2}>
           {topRated.map(movie => (
             <div key={movie.id}
-              className='p-2'
-              onClick={() => { handleClick(movie.id) }}>
+              className='p-2 outline-none cursor-pointer hover:bg-[#367c8f]'
+              onClick={() => { openModal(movie.id) }}>
               <img
                 src={`${imageBaseUrl}w200${movie.poster_path}`}
                 alt={movie.title}
@@ -188,7 +208,9 @@ export default function MainPage() {
         <p className='text-3xl'>Popular</p>
         <Slider {...settings2}>
           {popular.map(movie => (
-            <div key={movie.id} className='p-2'>
+            <div key={movie.id}
+              className='p-2 outline-none cursor-pointer hover:bg-[#367c8f]'
+              onClick={() => { openModal(movie.id) }}>
               <img
                 src={`${imageBaseUrl}w200${movie.poster_path}`}
                 alt={movie.title}
@@ -213,15 +235,46 @@ export default function MainPage() {
         </Slider>
       </section>
       {isModalOpen && movieDetails && (
-        <div className='fixed inset-0 z-50 bg-black/90 flex justify-center items-center overflow-y-scroll p-4'>
-          <div className='bg-white rounded-lg shadow-2xl w-[90%] max-w-2xl'>
+        <div
+          className='fixed inset-0 z-40 flex items-center p-4 bg-cover bg-center h-full'
+          style={{
+            backgroundImage: `url(${imageBaseUrl}original${movieDetails.backdrop_path})`
+          }}>
+
+          <div className='absolute inset-0 bg-black/75'></div>
+
+          <div className='overflow-y-scroll max-h-full py-4'>
+
+            <div className='absolute top-0 right-0 p-5'>
+              <SlClose className=' text-white text-4xl z-60 relative cursor-pointer'
+                onClick={() => { closeModal() }} />
+            </div>
+
+            <div className=' text-white flex justify-center items-center relative z-50 flex-col md:flex-row h-full mt-8 gap-8'>
               <img
-                src={`${imageBaseUrl}original${movieDetails.backdrop_path}`}
-                alt={movieDetails.title} />
-              <h2>{movieDetails.title}</h2>
-              <p>{movieDetails.release_date}</p>
-              <p>{movieDetails.overview}</p>
+                src={`${imageBaseUrl}w342${movieDetails.poster_path}`}
+                alt={movieDetails.title}
+              />
+
+              <div className='flex flex-col sm:w-3/4 font-semibold text-sm gap-3 md:text-lg'>
+                <h2 className='md:text-3xl text-xl'>{movieDetails.title}</h2>
+                <div className='flex items-center gap-2'>Rating: <FaStar className='text-amber-300' /> {(movieDetails.vote_average).toFixed(1)} / 10 </div>
+                <p>Release Date: {movieDetails.release_date}</p>
+                <p>Runtime: {movieDetails.runtime} minutes</p>
+                <p>Genre: {movieDetails.genres.map(genre => (genre.name)).join(', ')}</p>
+                <p>{movieDetails.overview}</p>
+                <div className='flex gap-1'>
+                  <p>Cast: </p>
+                  {credits && (
+                    <p>
+                      {credits.slice(0, 5).map(cast => cast.name).join(', ')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
+
         </div>
       )
       }
