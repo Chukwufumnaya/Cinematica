@@ -98,7 +98,7 @@ export default function MainPage() {
     slidesToShow: 6,
     slidesToScroll: 6,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 4000,
     arrows: true,
 
     responsive: [
@@ -192,14 +192,14 @@ export default function MainPage() {
         <Slider {...settings2}>
           {topRated.map(movie => (
             <div key={movie.id}
-              className='p-2 outline-none cursor-pointer hover:bg-[#367c8f]'
+              className='p-2 outline-none cursor-pointer hover:bg-[#367c8f] active:bg-[#367c8f]'
               onClick={() => { openModal(movie.id) }}>
               <img
                 src={`${imageBaseUrl}w200${movie.poster_path}`}
                 alt={movie.title}
                 className='object-cover rounded-lg'
               />
-              <p className='text-sm sm:text-lg text-center mt-1'>{movie.title}</p>
+              <p className='text-lg text-center mt-1'>{movie.title}</p>
             </div>
           ))}
         </Slider>
@@ -209,13 +209,13 @@ export default function MainPage() {
         <Slider {...settings2}>
           {popular.map(movie => (
             <div key={movie.id}
-              className='p-2 outline-none cursor-pointer hover:bg-[#367c8f]'
+              className='p-2 outline-none cursor-pointer hover:bg-[#367c8f] active:bg-[#367c8f]'
               onClick={() => { openModal(movie.id) }}>
               <img
                 src={`${imageBaseUrl}w200${movie.poster_path}`}
                 alt={movie.title}
                 className='object-cover rounded-lg' />
-              <p className='text-sm sm:text-lg text-center mt-1'>{movie.title}</p>
+              <p className='text-lg text-center mt-1'>{movie.title}</p>
             </div>
           ))}
         </Slider>
@@ -229,7 +229,7 @@ export default function MainPage() {
                 src={`${imageBaseUrl}w200${show.poster_path}`}
                 alt={show.name}
                 className='object-cover rounded-lg' />
-              <p className='text-sm sm:text-lg text-center mt-1'>{show.name}</p>
+              <p className='text-lg text-center mt-1'>{show.name}</p>
             </div>
           ))}
         </Slider>
